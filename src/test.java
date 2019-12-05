@@ -17,6 +17,7 @@ public class test {
 	    graph.display(false);
 	    double i=diameter(graph);
 	    System.out.print("comprimento = "); System.out.println(i);
+	    System.out.print("branch Xico");
 	    
 	}
 }
