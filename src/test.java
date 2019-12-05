@@ -16,6 +16,7 @@ public class test {
 	    gen.end();
 	    graph.display(false);
 	    double i=diameter(graph);
-	    System.out.println(i);
+	    System.out.print("comprimento = "); System.out.println(i);
+	    
 	}
 }
