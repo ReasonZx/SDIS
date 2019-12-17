@@ -3,15 +3,18 @@ import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.algorithm.generator.LobsterGenerator;
 import org.graphstream.algorithm.generator.RandomEuclideanGenerator;
+import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
-import static org.graphstream.algorithm.Toolkit.*;
+import org.graphstream.ui.layout.springbox.implementations.SpringBox;
+import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.ViewerPipe;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class test {
-	public static void main(String args[]) {
+	public static void main(String args[]) throws InterruptedException {
 		
 		
 		Graph graph = new SingleGraph("test");
@@ -35,6 +38,21 @@ public class test {
 	    	list_of_nodes.get(i).start();
 	    }
 	    
-	    System.out.println();
-	}
+        SpringBox box = new SpringBox();
+        Viewer v = graph.display(false);
+        ViewerPipe pipe = v.newViewerPipe();
+        pipe.addAttributeSink(graph);
+        v.enableAutoLayout(box);
+       
+        Thread.sleep(5000);
+        pipe.pump();
+       
+        for (Node n : graph) {
+                Object[] xy = n.getArray("xyz");
+                double x = (Double) xy[0];
+                double y = (Double) xy[1];
+                org.graphstream.ui.geom.Point3 pixels = v.getDefaultView().getCamera().transformGuToPx(x, y, 0);
+                System.out.printf("'%s': (%.3f;%.3f)\t--> (%.0f;%.0f)\n", n.getId(), x, y, pixels.x, pixels.y);
+            }
+    }
 }
