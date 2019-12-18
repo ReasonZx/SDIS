@@ -27,7 +27,7 @@ public class test {
 	            gen.nextEvents();
 	    }
 	    gen.end();
-	    graph.display(true);
+	    //graph.display(true);
 	    
 	    
 	   
@@ -44,7 +44,7 @@ public class test {
         pipe.addAttributeSink(graph);
         v.enableAutoLayout(box);
        
-        Thread.sleep(5000);
+        //Thread.sleep(5000);
         pipe.pump();
        
         for (Node n : graph) {
