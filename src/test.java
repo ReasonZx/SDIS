@@ -18,8 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class test {
 	public static void main(String args[]) throws InterruptedException {
 		
-		Array<String> queues = new LinkedBlockingQueue<String>();
-
+		ArrayList<String> str_array = new ArrayList<String>();
 		Graph graph = new SingleGraph("test");
 		
 	    Generator gen = new DorogovtsevMendesGenerator();
@@ -32,14 +31,19 @@ public class test {
 	    gen.end();
 	    graph.display(true);
 	    
-	    
-	   
 	    List<Thread> list_of_nodes = new ArrayList<Thread>();
 	    
+	    System.out.println(graph.getNodeCount());
 	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
-	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i), queue));
+	    	str_array.add(i, "");
+	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i), str_array));
+	    }
+	    
+	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
 	    	list_of_nodes.get(i).start();
 	    }
+	    
+	    
 	    /*
         SpringBox box = new SpringBox();
         Viewer v = graph.display(false);
