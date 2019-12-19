@@ -12,11 +12,14 @@ import org.graphstream.ui.view.ViewerPipe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class test {
 	public static void main(String args[]) throws InterruptedException {
 		
-		
+		Array<String> queues = new LinkedBlockingQueue<String>();
+
 		Graph graph = new SingleGraph("test");
 		
 	    Generator gen = new DorogovtsevMendesGenerator();
@@ -27,17 +30,17 @@ public class test {
 	            gen.nextEvents();
 	    }
 	    gen.end();
-	    //graph.display(true);
+	    graph.display(true);
 	    
 	    
 	   
 	    List<Thread> list_of_nodes = new ArrayList<Thread>();
 	    
 	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
-	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i)));
+	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i), queue));
 	    	list_of_nodes.get(i).start();
 	    }
-	    
+	    /*
         SpringBox box = new SpringBox();
         Viewer v = graph.display(false);
         ViewerPipe pipe = v.newViewerPipe();
@@ -53,6 +56,6 @@ public class test {
                 double y = (Double) xy[1];
                 org.graphstream.ui.geom.Point3 pixels = v.getDefaultView().getCamera().transformGuToPx(x, y, 0);
                 System.out.printf("'%s': (%.3f;%.3f)\t--> (%.0f;%.0f)\n", n.getId(), x, y, pixels.x, pixels.y);
-            }
+            }*/
     }
 }
