@@ -29,7 +29,7 @@ public class test {
 		Graph graph = new SingleGraph("test");
 		ReentrantLock lock = new ReentrantLock();
 		
-	    Generator gen = new RandomEuclideanGenerator();
+	    Generator gen = new BananaTreeGenerator();
 	    
 	    gen.addSink(graph);
 	    gen.begin();
@@ -40,32 +40,34 @@ public class test {
 	    graph.display(true);
 	    	    
 	    List<Thread> list_of_nodes = new ArrayList<Thread>();						//Array of threads (1 for each node)
+	    for(int i=0 ; i < graph.getNodeCount() ; i++) {	
+	    	str_array.add(i, "");
+	    }
+	
 	    
-	    System.out.println(graph.getNodeCount());
 	    
-	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
-	    	str_array.add(i, "");													//Initializing each node buffer as empty
-	    	list_of_nodes.add(i,new gossip_thread(graph,i, str_array, lock));	//Assigning a thread for each node and passing it it's identifier and the string of arrays
+	    for(int i=0 ; i < graph.getNodeCount() ; i++) {								
+	    	list_of_nodes.add(i,new gossip_thread(graph,i, str_array,lock));	//Assigning a thread for each node and passing it it's identifier and the string of arrays
 	    }
 	    
 	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
 	    	list_of_nodes.get(i).start();
 	    }
 	    
-	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
-	    	list_of_nodes.get(i).join();
-	    }	    
-	    graph.getNode(0).addAttribute("ui.style", "fill-color: rgb(0,100,255); size: 15px;");
+//	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
+//	    	list_of_nodes.get(i).join();
+//	    }	    
+	    
 
 	    for(int i=1 ; i < graph.getNodeCount() ; i++) {
 	    	if(str_array.get(i) == "work") {
-	    		System.out.println(i);
+	    		//System.out.println(i);
 			    graph.getNode(i).addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 15px;");
 	    	}
 	    }
 	    
-	   /* //JUST FOR TESTING NEIGHBORS
-	    
+	    //JUST FOR TESTING NEIGHBORS
+	    /*
 	    Iterator<Node> node_it;
 	    Node this_node;
 	    
@@ -78,13 +80,19 @@ public class test {
 		    	System.out.print(this_node.getIndex() + " ");
 				this_node.addAttribute("ui.style", "fill-color: rgb(255, 0, 0); size: 15px;");
 	    	}
-	    	System.out.println();
 	    	try {
-				TimeUnit.MILLISECONDS.sleep(500);
+				TimeUnit.MILLISECONDS.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		    graph.getNode(i).addAttribute("ui.style", "fill-color: rgb(0,0,0); size: 15px;");
+	    	node_it = graph.getNode(i).getNeighborNodeIterator();
+		    while(node_it.hasNext()) {
+		    	this_node = node_it.next();
+		    	System.out.print(this_node.getIndex() + " ");
+				this_node.addAttribute("ui.style", "fill-color: rgb(0, 0, 0); size: 15px;");
+	    	}
+	    	System.out.println();
 	    }
 	    */
 	    
