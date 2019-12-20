@@ -9,17 +9,11 @@ import org.graphstream.algorithm.generator.RandomGenerator;
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
-import org.graphstream.ui.layout.springbox.implementations.SpringBox;
-import org.graphstream.ui.view.Viewer;
-import org.graphstream.ui.view.ViewerPipe;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 public class test {
@@ -27,9 +21,8 @@ public class test {
 		
 		ArrayList<String> str_array = new ArrayList<String>();						//Array of buffers (1 for each node)
 		Graph graph = new SingleGraph("test");
-		ReentrantLock lock = new ReentrantLock();
 		
-	    Generator gen = new BananaTreeGenerator();
+	    Generator gen = new ChainGenerator();										//Changeable Generator
 	    
 	    gen.addSink(graph);
 	    gen.begin();
@@ -39,34 +32,33 @@ public class test {
 	    gen.end();
 	    graph.display(true);
 	    	    
-	    List<Thread> list_of_nodes = new ArrayList<Thread>();						//Array of threads (1 for each node)
+	    for(int i = 0 ; i < graph.getNodeCount() ; i++) {							//Creating the Array of Buffers (each node has one buffer of it's own)
+	    	str_array.add(i, "");													
+	    }
+	    
+	    List<Thread> list_of_nodes = new ArrayList<Thread>();						//Array of threads (1 for each node) 
+	    
 	    for(int i=0 ; i < graph.getNodeCount() ; i++) {	
-	    	str_array.add(i, "");
-	    }
-	
-	    
-	    
-	    for(int i=0 ; i < graph.getNodeCount() ; i++) {								
-	    	list_of_nodes.add(i,new gossip_thread(graph,i, str_array,lock));	//Assigning a thread for each node and passing it it's identifier and the string of arrays
+	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array));		//Assigning a thread for each node 
+	    	list_of_nodes.get(i).start();											//Run void run() of the thread		
 	    }
 	    
-	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
-	    	list_of_nodes.get(i).start();
-	    }
-	    
-//	    for(int i=0 ; i < graph.getNodeCount() ; i++) {
-//	    	list_of_nodes.get(i).join();
-//	    }	    
+	    for(int i=0 ; i < graph.getNodeCount() ; i++) {					
+	    	list_of_nodes.get(i).join();											//Wait for all threads to finish
+	    }	    
 	    
 
-	    for(int i=1 ; i < graph.getNodeCount() ; i++) {
-	    	if(str_array.get(i) == "work") {
-	    		//System.out.println(i);
-			    graph.getNode(i).addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 15px;");
-	    	}
-	    }
 	    
-	    //JUST FOR TESTING NEIGHBORS
+//	    for(int i=0 ; i < graph.getNodeCount() ; i++) {								// Test if every node has the message
+//	    	if(str_array.get(i) == "work") {
+//			    graph.getNode(i).addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 15px;");
+//	    	}
+//	    }
+	    
+	    
+	    
+	    
+	    																			//JUST FOR TESTING NEIGHBORS// CODE NOT IMPORTANT //
 	    /*
 	    Iterator<Node> node_it;
 	    Node this_node;
@@ -95,24 +87,6 @@ public class test {
 	    	System.out.println();
 	    }
 	    */
-	    
-	    
-	    /*
-        SpringBox box = new SpringBox();
-        Viewer v = graph.display(false);
-        ViewerPipe pipe = v.newViewerPipe();
-        pipe.addAttributeSink(graph);
-        v.enableAutoLayout(box);
-       
-        //Thread.sleep(5000);
-        pipe.pump();
-       
-        for (Node n : graph) {
-                Object[] xy = n.getArray("xyz");
-                double x = (Double) xy[0];
-                double y = (Double) xy[1];
-                org.graphstream.ui.geom.Point3 pixels = v.getDefaultView().getCamera().transformGuToPx(x, y, 0);
-                System.out.printf("'%s': (%.3f;%.3f)\t--> (%.0f;%.0f)\n", n.getId(), x, y, pixels.x, pixels.y);
-            }*/
-    }
+
+	}
 }

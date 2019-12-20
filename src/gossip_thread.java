@@ -23,51 +23,43 @@ import java.util.concurrent.locks.ReentrantLock;
 public class gossip_thread extends Thread{
 	
 	private ArrayList<String> str_array;
+	private Node gossip_node;
 	private Node test_node;
 	private Iterator<Node> node_it;
-	private Graph graph;
-	private int index;
-	private ReentrantLock lock;
 
 	
-	public gossip_thread(Graph x,int i,ArrayList<String> Q,ReentrantLock l){
-		graph=x;
+	public gossip_thread(Node node,ArrayList<String> Q){
+		gossip_node=node;
 		str_array = Q;
-		index = i;
-		lock = l;
 	}
 	
 	public void run(){
-		if(index == 0) {
-		    graph.getNode(0).addAttribute("ui.style", "fill-color: rgb(0,100,255); size: 15px;");
-			str_array.add(0,"work");																	// Node disseminating information
-		    node_it = graph.getNode(0).getNeighborNodeIterator();
-			while(node_it.hasNext()==true) {															//Painting( blue node 0. red neighbors)
+		if(gossip_node.getIndex() == 0) {																//If origin node
+		    gossip_node.addAttribute("ui.style", "fill-color: rgb(0,100,255); size: 10px;");				//Paint as blue
+			str_array.set(0,"work");																		//Fill the buffer of the origin Node with information to disseminate
+		    node_it = gossip_node.getNeighborNodeIterator();												//Get the iterator for Neighbor nodes
+			while(node_it.hasNext()==true) {																//Iterating the neighbor nodes
 				test_node = node_it.next();
-				str_array.set(test_node.getIndex(),"work");
-				lock.lock();
-				test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 15px;");
-				lock.unlock();
+				str_array.set(test_node.getIndex(),"work");													//Putting information on the buffers of the neighbors 
+				test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 10px;");				//Painting red node that has been disseminated with information
 			}
 		}
 		
-		else {																							// All other nodes
+		else {																							//All other nodes
 			while(true) {
-				if(str_array.get(index) == "work") {
-					node_it = graph.getNode(index).getNeighborNodeIterator();
+				if(str_array.get(gossip_node.getIndex()) == "work") {										//If it already has information to disseminate
+					node_it = gossip_node.getNeighborNodeIterator();											//Get the iterator for Neighbor nodes
 					while(node_it.hasNext()==true) {										
 						test_node = node_it.next();
-						str_array.set(test_node.getIndex(),"work");
-						if(test_node.getIndex() != 0) {
-							lock.lock();
-							test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 15px;");
-							lock.unlock();
+						str_array.set(test_node.getIndex(),"work");												//Putting information on the buffers of the neighbors 
+						if(test_node.getIndex() != 0) {															//Painting red node that has been disseminated with information
+							test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 10px;");		//If the node is the origin node dont paint it (leave it blue)
 						}
 					}
-				 break;
+				 break;																							//Information has been disseminated -- Break;
 				}
-				else {
-					try {
+				else {																						//If it doesn't have information wait until some node puts information
+					try {																					//in its buffer
 						TimeUnit.MILLISECONDS.sleep(100);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
