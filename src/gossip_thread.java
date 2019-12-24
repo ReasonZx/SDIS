@@ -19,6 +19,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.Random; 
 
 public class gossip_thread extends Thread{
 	
@@ -26,41 +27,91 @@ public class gossip_thread extends Thread{
 	private Node gossip_node;
 	private Node test_node;
 	private Iterator<Node> node_it;
+	private List<Node> neighbors;
+	private double probability;
+	private Random rand2 = new Random();
+	private boolean stop;
+	private long startTime;
 
 	
-	public gossip_thread(Node node,ArrayList<String> Q){
+	public gossip_thread(Node node,ArrayList<String> Q, double prob){
 		gossip_node=node;
 		str_array = Q;
+		probability = prob;
+		
 	}
+	public Node getRandomElement(List<Node> list) 
+    { 
+        Random rand = new Random(); 
+        return list.get(rand.nextInt(list.size())); 
+    }
 	
 	public void run(){
-		if(gossip_node.getIndex() == 0) {																//If origin node
-		    gossip_node.addAttribute("ui.style", "fill-color: rgb(0,100,255); size: 10px;");				//Paint as blue
+		if(gossip_node.getIndex() == 0) {	//If origin node
+		    
+			
+			gossip_node.addAttribute("ui.style", "fill-color: rgb(0,100,255); size: 10px;");				//Paint as blue
 			str_array.set(0,"work");																		//Fill the buffer of the origin Node with information to disseminate
 		    node_it = gossip_node.getNeighborNodeIterator();												//Get the iterator for Neighbor nodes
-			while(node_it.hasNext()==true) {																//Iterating the neighbor nodes
-				test_node = node_it.next();
-				str_array.set(test_node.getIndex(),"work");													//Putting information on the buffers of the neighbors 
-				test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 10px;");				//Painting red node that has been disseminated with information
-			}
-		}
+		    
+		    neighbors = new ArrayList<Node>();
+		    while (node_it.hasNext()) {
+		        neighbors.add(node_it.next());
+		    }
+		    System.out.println(neighbors.size());
+		    
+		    while(true) {																//Iterating the neighbor nodes
+		    	test_node = getRandomElement(neighbors);
+		    	
+		    	if(str_array.get(test_node.getIndex()) == "work") {	
+		    		//System.out.println(probability);
+		    		stop = rand2.nextDouble() < probability;
+		    		System.out.println(stop);
+		    		if(stop==true)	break;    		
+		    		
+		    	}
+		    	else {
+		    		
+		    		str_array.set(test_node.getIndex(),"work");													//Putting information on the buffers of the neighbors 
+					
+					test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 10px;");				//Painting red node that has been disseminated with information
+							    		
+		    	}
+		    	
+		    }
+		} 
 		
 		else {																							//All other nodes
-			while(true) {
+			startTime = System.currentTimeMillis();
+			while(false||(System.currentTimeMillis()-startTime)<5000) {
+				//System.out.println("I am stuck here");	
 				if(str_array.get(gossip_node.getIndex()) == "work") {										//If it already has information to disseminate
 					node_it = gossip_node.getNeighborNodeIterator();											//Get the iterator for Neighbor nodes
-					while(node_it.hasNext()==true) {										
-						test_node = node_it.next();
-						str_array.set(test_node.getIndex(),"work");												//Putting information on the buffers of the neighbors 
-						if(test_node.getIndex() != 0) {															//Painting red node that has been disseminated with information
-							test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 10px;");		//If the node is the origin node dont paint it (leave it blue)
-						}
+				    neighbors = new ArrayList<Node>();
+					while (node_it.hasNext()) {
+						neighbors.add(node_it.next());
 					}
-				 break;																							//Information has been disseminated -- Break;
-				}
+					while(true) {																//Iterating the neighbor nodes
+						test_node = getRandomElement(neighbors);
+					    	
+					    if(str_array.get(test_node.getIndex()) == "work") {	
+					    	stop = rand2.nextDouble() < probability;
+					    	System.out.println(stop);
+					    	if(stop==true)	break;    		
+					    		
+					    	}
+					    else {	
+					    	str_array.set(test_node.getIndex(),"work");													//Putting information on the buffers of the neighbors 
+					    	if(test_node.getIndex() != 0) {	
+					    		test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 10px;");				//Painting red node that has been disseminated with information
+					    	}			    		
+					    }
+					}	
+				break;																							//Information has been disseminated -- Break;
+				}	
 				else {																						//If it doesn't have information wait until some node puts information
 					try {																					//in its buffer
-						TimeUnit.MILLISECONDS.sleep(100);
+						TimeUnit.MILLISECONDS.sleep(300);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}				

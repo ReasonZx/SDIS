@@ -21,16 +21,18 @@ public class test {
 		
 		ArrayList<String> str_array = new ArrayList<String>();						//Array of buffers (1 for each node)
 		Graph graph = new SingleGraph("test");
+		int count = 0;
 		
-	    Generator gen = new ChainGenerator();										//Changeable Generator
+	    Generator gen = new RandomEuclideanGenerator();										//Changeable Generator
 	    
 	    gen.addSink(graph);
 	    gen.begin();
-	    for(int i=0; i<100; i++) {
+	    for(int i=0; i<1000; i++) {
 	            gen.nextEvents();													//Creating nodes
 	    }
 	    gen.end();
 	    graph.display(true);
+	    
 	    	    
 	    for(int i = 0 ; i < graph.getNodeCount() ; i++) {							//Creating the Array of Buffers (each node has one buffer of it's own)
 	    	str_array.add(i, "");													
@@ -38,22 +40,24 @@ public class test {
 	    
 	    List<Thread> list_of_nodes = new ArrayList<Thread>();						//Array of threads (1 for each node) 
 	    
-	    for(int i=0 ; i < graph.getNodeCount() ; i++) {	
-	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array));		//Assigning a thread for each node 
+	    int nodeCount = graph.getNodeCount();
+	    for(int i=0 ; i < nodeCount ; i++) {	
+	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array,0.3));		//Assigning a thread for each node 
 	    	list_of_nodes.get(i).start();											//Run void run() of the thread		
 	    }
 	    
 	    for(int i=0 ; i < graph.getNodeCount() ; i++) {					
 	    	list_of_nodes.get(i).join();											//Wait for all threads to finish
 	    }	    
+	    System.out.println("DONE!");
 	    
 
-	    
-//	    for(int i=0 ; i < graph.getNodeCount() ; i++) {								// Test if every node has the message
-//	    	if(str_array.get(i) == "work") {
-//			    graph.getNode(i).addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 15px;");
-//	    	}
-//	    }
+	    for(int i=0 ; i < nodeCount ; i++) {								// Test if every node has the message
+	    	if(str_array.get(i) == "work") {
+			    count++;
+	    	}
+	    }
+  	  System.out.println(count +  " vs " + nodeCount );
 	    
 	    
 	    
