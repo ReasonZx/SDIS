@@ -42,7 +42,7 @@ public class test {
 	    
 	    int nodeCount = graph.getNodeCount();
 	    for(int i=0 ; i < nodeCount ; i++) {	
-	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array,0.3));		//Assigning a thread for each node 
+	    	list_of_nodes.add(i,new push_thread(graph.getNode(i),str_array,0.3));		//Assigning a thread for each node 
 	    	list_of_nodes.get(i).start();											//Run void run() of the thread		
 	    }
 	    
