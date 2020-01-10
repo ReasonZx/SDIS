@@ -29,15 +29,17 @@ public class gossip_thread extends Thread{
 	private Iterator<Node> node_it;
 	private List<Node> neighbors;
 	private boolean stop;
+	private long start;
+	private Random rand2 = new Random();
+	private long sendingTime;
 	private long startTime;								//Adicionar como parametro
-	private double loss_of_interest;				// Adicionar como parametro
+	private double probability;				// Adicionar como parametro
 
 	
 	public gossip_thread(Node node,ArrayList<String> Q, double prob){
 		gossip_node=node;
 		str_array = Q;
-		loss_of_interest = prob;
-		
+		probability = prob;
 	}
 	public Node getRandomElement(List<Node> list) 
     { 
@@ -45,7 +47,7 @@ public class gossip_thread extends Thread{
         return list.get(rand.nextInt(list.size())); 
     }
 	
-	public void run(){
+	public void run() {
 		if(gossip_node.getIndex() == 0) {	//If origin node
 		    
 			
@@ -60,11 +62,11 @@ public class gossip_thread extends Thread{
 		    double number = 1;
 		    while(true) {															//Iterating the neighbor nodes
 				test_node = getRandomElement(neighbors);
-				
 		    	if(str_array.get(test_node.getIndex()).contains("work")) {	
-			    	number = number - loss_of_interest;
+			    	number = number - probability;
+		    		//stop = rand2.nextDouble() < probability;
 			    	stop = number <= 0;
-		    		if(stop==true)	break;  		
+		    		if(stop==true)	break;
 		    	}
 		    	else {
 		    		str_array.set(test_node.getIndex(),"work:0");													//Putting information on the buffers of the neighbors 
@@ -76,7 +78,7 @@ public class gossip_thread extends Thread{
 		
 		else {																									//All other nodes
 			startTime = System.currentTimeMillis();
-			while(System.currentTimeMillis()-startTime < 10000) {
+			while(System.currentTimeMillis()-startTime < 5000) {
 				String workStr = str_array.get(gossip_node.getIndex());
 				if(workStr.contains("work")) {																	//If it already has information to disseminate
 					node_it = gossip_node.getNeighborNodeIterator();											//Get the iterator for Neighbor nodes
@@ -92,15 +94,26 @@ public class gossip_thread extends Thread{
 					while(true) {																//Iterating the neighbor nodes
 						test_node = getRandomElement(neighbors);
 					    if(str_array.get(test_node.getIndex()).contains("work")) {
-					    	number = number - loss_of_interest;
+				    		//stop = rand2.nextDouble() < probability;
+					    	number = number - probability;
 					    	stop = number <= 0;
 					    	if(stop==true)	break;
 					    }
 					    else {
+					    	int i = 0;
+					    	start = System.nanoTime();												//Espera ativa
+					    	try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+					    	sendingTime = System.nanoTime() - start;
+					    	System.out.println(sendingTime);
 					    	str_array.set(test_node.getIndex(),"work:" + gossip_node.getIndex());													//Putting information on the buffers of the neighbors 		
 					    	if(test_node.getIndex()!= 0 && !test_node.hasAttribute("ui.style")) {
 					    		test_node.addAttribute("ui.style", "fill-color: rgb(255,0,0); size: 10px;");				//Painting red node that has been disseminated with information
-					    		System.out.println(test_node.getIndex());
+					    		System.out.println();
 					    	}
 					    }
 					}

@@ -23,7 +23,7 @@ public class test {
 		Graph graph = new SingleGraph("test");
 		int count = 0;
 		
-	    Generator gen = new LobsterGenerator();										//Changeable Generator
+	    Generator gen = new RandomEuclideanGenerator();										//Changeable Generator
 	    
 	    gen.addSink(graph);
 	    gen.begin();
@@ -41,7 +41,7 @@ public class test {
 	    List<Thread> list_of_nodes = new ArrayList<Thread>();						//Array of threads (1 for each node) 
 	    	    
 	    for(int i=0 ; i < nodeCount ; i++) {	
-	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array,0.01));		//Assigning a thread for each node 
+	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array,0.95));		//Assigning a thread for each node 
 	    	list_of_nodes.get(i).start();												//Run void run() of the thread		
 	    }
 	    
