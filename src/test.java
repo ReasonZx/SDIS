@@ -23,37 +23,37 @@ public class test {
 		Graph graph = new SingleGraph("test");
 		int count = 0;
 		
-	    Generator gen = new ChainGenerator();										//Changeable Generator
+	    Generator gen = new RandomEuclideanGenerator();										//Changeable Generator
 	    
 	    gen.addSink(graph);
 	    gen.begin();
-	    for(int i=0; i<1000; i++) {
+	    for(int i=0; i<500; i++) {
 	            gen.nextEvents();													//Creating nodes
 	    }
 	    gen.end();
 	    graph.display(true);
-	    
+	    int nodeCount = graph.getNodeCount();
 	    	    
-	    for(int i = 0 ; i < graph.getNodeCount() ; i++) {							//Creating the Array of Buffers (each node has one buffer of it's own)
+	    for(int i = 0 ; i < nodeCount ; i++) {							//Creating the Array of Buffers (each node has one buffer of it's own)
 	    	str_array.add(i, "");													
 	    }
 	    
 	    List<Thread> list_of_nodes = new ArrayList<Thread>();						//Array of threads (1 for each node) 
-	    
-	    int nodeCount = graph.getNodeCount();
+	    	    
 	    for(int i=0 ; i < nodeCount ; i++) {	
-	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array,0.1));		//Assigning a thread for each node 
+	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array,0));		//Assigning a thread for each node 
 	    	list_of_nodes.get(i).start();											//Run void run() of the thread		
 	    }
+	    
 	    
 	    for(int i=0 ; i < graph.getNodeCount() ; i++) {					
 	    	list_of_nodes.get(i).join();											//Wait for all threads to finish
 	    }	    
 	    System.out.println("DONE!");
-	    
+	    System.out.println(graph.getNodeCount());
 
 	    for(int i=0 ; i < nodeCount ; i++) {								// Test if every node has the message
-	    	if(str_array.get(i) == "work") {
+	    	if(str_array.get(i).contains("work")) {
 			    count++;
 	    	}
 	    }
