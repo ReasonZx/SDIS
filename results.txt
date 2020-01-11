@@ -1,0 +1,16 @@
+0.1 converged in                        373 ms
+0.2 converged in                        567 ms
+0.3 converged in                        683 ms
+0.4 converged in                        784 ms
+0.5 converged in                        876 ms
+0.6 converged in                        978 ms
+0.7 converged in                        1123 ms
+0.8 converged in                        1244 ms
+0.9 converged in                        1430 ms
+0.92 converged in                       1525 ms
+
+Total nodes                             1001
+Disseminated nodes                      924
+Transmission time                       100
+Bitrate                                 100
+Pakcet Size                             10000
