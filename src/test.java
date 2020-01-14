@@ -52,16 +52,26 @@ public class test {
 	    
 	    List<Thread> list_of_nodes = new ArrayList<Thread>();						//Array of threads (1 for each node) 
 	    	
-	    /*  
+	    /*
 	    for(int i=0 ; i < nodeCount ; i++) {	
 	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array,probability,tTrans, timeOut));		//Assigning a thread for each node 
 	    	list_of_nodes.get(i).start();																		//Run void run() of the thread		
-	    }*/
-	    
-	   
+	    }
+	    */
+	    /*
 	    for(int i=0 ; i < nodeCount ; i++) {	
 	    	list_of_nodes.add(i,new push_thread(graph.getNode(i),str_array,tTrans, timeOut));		//Assigning a thread for each node 
 	    	list_of_nodes.get(i).start();																		//Run void run() of the thread		
+	    }*/
+	    /*
+	    for(int i=0 ; i < nodeCount ; i++) {	
+	    	list_of_nodes.add(i,new pull_thread(graph.getNode(i),str_array,tTrans, timeOut));		//Assigning a thread for each node 
+	    	list_of_nodes.get(i).start();
+	    }*/
+	    
+	    for(int i=0 ; i < nodeCount ; i++) {	
+	    	list_of_nodes.add(i,new pushpull_thread(graph.getNode(i),str_array,tTrans, timeOut));		//Assigning a thread for each node 
+	    	list_of_nodes.get(i).start();
 	    }
 	    
 	    int num_over=0;

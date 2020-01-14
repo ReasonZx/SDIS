@@ -113,7 +113,7 @@ public class gossip_thread extends Thread{
 				}
 				else {																						//If it doesn't have information wait until some node puts information
 					try {																					//in its buffer
-						TimeUnit.MILLISECONDS.sleep(10);
+						TimeUnit.MILLISECONDS.sleep(5);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}		
