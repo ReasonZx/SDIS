@@ -24,20 +24,32 @@ import java.util.Random;
 public class pushpull_thread extends Thread{
 	
 	private ArrayList<String> str_array;
+	private ArrayList<ReentrantLock> locks;
 	private Node pushpull_node;
 	private Node test_node;
 	private Iterator<Node> node_it;
 	private List<Node> neighbors;
-	private long startTime;								//Adicionar como parametro
+	private long startTime;								
 	private int tTrans;
 	private int timeOut;
+	private Datashare traffic;
+
+	public void sleep(int time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 	
-	public pushpull_thread(Node node,ArrayList<String> Q, int time_trans, int time_out){
+	public pushpull_thread(Node node,ArrayList<String> Q, int time_trans, int time_out,  ArrayList<ReentrantLock> lockers, Datashare traff){
 		pushpull_node=node;
 		str_array = Q;
 		tTrans = time_trans;
 		timeOut = time_out;
+		locks = lockers;
+		traffic = traff;
 	}
 	public Node getRandomElement(List<Node> list) 
     { 
@@ -46,33 +58,35 @@ public class pushpull_thread extends Thread{
     }
 	
 	public void run() {
-		if(pushpull_node.getIndex() == 0) {																	//If origin node
-			pushpull_node.addAttribute("ui.style", "fill-color: rgb(0,0,255); size: 10px;");				//Paint as blue
-			str_array.set(0,"work spreader");																		//Fill the buffer of the origin Node with information to disseminate
-			node_it = pushpull_node.getNeighborNodeIterator();												//Get the iterator for Neighbor nodes
+		if(pushpull_node.getIndex() == 0) {																	
+			pushpull_node.addAttribute("ui.style", "fill-color: rgb(0,0,255); size: 8px;");
+    		traffic.setValue(traffic.getValue() + 1);
+			str_array.set(0,"work spreader");		
+			node_it = pushpull_node.getNeighborNodeIterator();												
 		    
 		    neighbors = new ArrayList<Node>();
 		    while (node_it.hasNext()) {
 		        neighbors.add(node_it.next());
 		    }
-		    while(true) {														//Iterating the neighbor nodes
+		    while(true) {														
 				test_node = getRandomElement(neighbors);
-		    	if(!str_array.get(test_node.getIndex()).contains("work")) {
-		    		Thread paint = new PaintingThread(test_node);
-			    	paint.start();
-		    	}
-		    	try {
-					Thread.sleep(tTrans);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 		    	if(str_array.get(test_node.getIndex()).contains("spreader")) {
-		    		Thread paint = new PaintingThread(test_node);
-			    	paint.start();
-					str_array.set(test_node.getIndex(),"work spreader");													//Putting information on the buffers of the neighbors 		
+		    		locks.get(test_node.getIndex()).lock();
+					sleep(tTrans);
+		    		locks.get(0).lock();
+		    		traffic.setValue(traffic.getValue() + 1);
+		    		locks.get(0).unlock();
+		    		str_array.set(test_node.getIndex(),"work spreader");													
+		    		locks.get(test_node.getIndex()).unlock();
 		    	}
 		    	else {
-					str_array.set(test_node.getIndex(),"work");													//Putting information on the buffers of the neighbors 		
+		    		locks.get(test_node.getIndex()).lock();
+					sleep(tTrans);
+		    		locks.get(0).lock();
+		    		traffic.setValue(traffic.getValue() + 1);
+		    		locks.get(0).unlock();
+					str_array.set(test_node.getIndex(),"work");
+		    		locks.get(test_node.getIndex()).unlock(); 		
 		    	}
 		    	int count = 0;
 				for (Node neighbor : neighbors) 
@@ -94,52 +108,46 @@ public class pushpull_thread extends Thread{
 					        neighbors.add(node_it.next());
 					    }																				
 					    test_node = getRandomElement(neighbors);
-					    try {
-							Thread.sleep(tTrans);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
 					    if(str_array.get(test_node.getIndex()).contains("spreader")){
-				    		try {
-								Thread.sleep(tTrans);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
+				    		locks.get(test_node.getIndex()).lock();
+					    	sleep(tTrans);
+				    		locks.get(0).lock();
+				    		traffic.setValue(traffic.getValue() + 1);
+				    		locks.get(0).unlock();
 							str_array.set(pushpull_node.getIndex(),"work spreader");
+				    		locks.get(test_node.getIndex()).unlock();
 							break;
 				    	}
 				    	else {
-				    		try {																					//in its buffer
-								TimeUnit.MILLISECONDS.sleep(5);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}	
+				    		sleep(5);
 				    	}
 					}																						//Information has been disseminated -- Break;
 				}
 				else
 					if(workStr.contains("spreader")) {
-						node_it = pushpull_node.getNeighborNodeIterator();												//Get the iterator for Neighbor nodes
+						node_it = pushpull_node.getNeighborNodeIterator();												
 						
 					    neighbors = new ArrayList<Node>();
 					    while (node_it.hasNext()) {
 					        neighbors.add(node_it.next());
 					    }
-					    while(true) {														//Iterating the neighbor nodes
+					    while(true) {
 							test_node = getRandomElement(neighbors);
-					    	if(str_array.get(test_node.getIndex()).contains("spreader")) break;
-					    	try {
-								Thread.sleep(tTrans);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-							str_array.set(test_node.getIndex(),"work");													//Putting information on the buffers of the neighbors 		
-					    	int count = 0;
+					    	if(!str_array.get(test_node.getIndex()).contains("spreader")) {
+						    	locks.get(test_node.getIndex()).lock();
+					    		sleep(tTrans);
+					    		locks.get(0).lock();
+					    		traffic.setValue(traffic.getValue() + 1);
+					    		locks.get(0).unlock();
+								str_array.set(test_node.getIndex(),"work");			
+					    		locks.get(test_node.getIndex()).unlock();
+						    }
+							int count = 0;
 							for (Node neighbor : neighbors) 
 					    		if(str_array.get(neighbor.getIndex()).contains("work")) 
 					    			count++;
 							if(count == neighbors.size()) break;
-					    }																						//Information has been disseminated -- Break;
+					    }
 					}
 				if(str_array.get(pushpull_node.getIndex()).contains("work")) {
 					Thread paint = new PaintingThread(pushpull_node);

@@ -1,0 +1,21 @@
+0.05 1221
+0.1 1443
+0.2 1861
+0.3 2081
+0.4 2465
+0.5 2865
+0.6 3084
+0.7 3451
+0.8 3684
+0.9 4093
+0.92 4276
+0.95 4322
+1 5099
+
+Total_Nodes 1001
+Disseminated_Nodes 1001
+Transmission_time 200
+N_messages_passed 2212
+Probability 0.01
+Bitrate 100
+Packet_Size 20000

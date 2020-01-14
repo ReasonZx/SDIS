@@ -24,24 +24,36 @@ import java.util.Random;
 public class gossip_thread extends Thread{
 	
 	private ArrayList<String> str_array;
+	private ArrayList<ReentrantLock> locks;
 	private Node gossip_node;
 	private Node test_node;
 	private Iterator<Node> node_it;
 	private List<Node> neighbors;
 	private boolean stop;
 	private Random rand2 = new Random();
-	private long startTime;								//Adicionar como parametro
-	private double probability;							// Adicionar como parametro
+	private long startTime;								
+	private double probability;							
 	private int tTrans;
 	private int timeOut;
-
+	private Datashare traffic;
 	
-	public gossip_thread(Node node,ArrayList<String> Q, double prob, int time_trans, int time_out){
+	
+	public void sleep(int time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public gossip_thread(Node node,ArrayList<String> Q, double prob, int time_trans, int time_out, ArrayList<ReentrantLock> lockers , Datashare traff){
 		gossip_node=node;
 		str_array = Q;
 		probability = prob;
 		tTrans = time_trans;
 		timeOut = time_out;
+		locks = lockers;
+		traffic = traff;
 	}
 	public Node getRandomElement(List<Node> list) 
     { 
@@ -52,27 +64,28 @@ public class gossip_thread extends Thread{
 	public void run() {
 		if(gossip_node.getIndex() == 0) {	//If origin node
 			gossip_node.addAttribute("ui.style", "fill-color: rgb(0,0,255); size: 10px;");				//Paint as blue
-			str_array.set(0,"work:0");																		//Fill the buffer of the origin Node with information to disseminate
+			str_array.set(0,"work:0");
+    		traffic.setValue(traffic.getValue() + 1);
 		    node_it = gossip_node.getNeighborNodeIterator();												//Get the iterator for Neighbor nodes
 		    
 		    neighbors = new ArrayList<Node>();
 		    while (node_it.hasNext()) {
 		        neighbors.add(node_it.next());
 		    }
-		    while(true) {															//Iterating the neighbor nodes
+		    while(true) {															
 				test_node = getRandomElement(neighbors);
 		    	if(str_array.get(test_node.getIndex()).contains("work")) {	
 		    		stop = rand2.nextDouble() < probability;
 		    		if(stop==true)	break;
 		    	}
 		    	else {
-		    		try {
-						Thread.sleep(tTrans);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-		    		str_array.set(test_node.getIndex(),"work:0");													//Putting information on the buffers of the neighbors 
-					test_node.addAttribute("ui.style", "fill-color: rgb(0,255,0); size: 10px;");				//Painting red node that has been disseminated with information		    		
+		    		locks.get(test_node.getIndex()).lock();
+		    		sleep(tTrans);
+		    		locks.get(0).lock();
+		    		traffic.setValue(traffic.getValue() + 1);
+		    		locks.get(0).unlock();
+		    		str_array.set(test_node.getIndex(),"work:0");	
+		    		locks.get(test_node.getIndex()).unlock();
 		    	}
 		    	
 		    }
@@ -92,31 +105,30 @@ public class gossip_thread extends Thread{
 						}
 					}
 					if(neighbors.size() <= 0) break;
-					while(true) {																//Iterating the neighbor nodes
+					while(true) {
 						test_node = getRandomElement(neighbors);
 					    if(str_array.get(test_node.getIndex()).contains("work")) {
 				    		stop = rand2.nextDouble() < probability;
 					    	if(stop==true)	break;
 					    }
 					    else {
-					    	Thread paint = new PaintingThread(test_node);
-					    	paint.start();
-					    	try {
-								Thread.sleep(tTrans);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-					    	str_array.set(test_node.getIndex(),"work:" + gossip_node.getIndex());													//Putting information on the buffers of the neighbors 		
+					    	locks.get(test_node.getIndex()).lock();
+				    		sleep(tTrans);
+				    		locks.get(0).lock();
+					    	traffic.setValue(traffic.getValue() + 1);
+				    		locks.get(0).unlock();
+					    	str_array.set(test_node.getIndex(),"work:" + gossip_node.getIndex());		
+				    		locks.get(test_node.getIndex()).unlock();
 					    }
 					}
-					break;																							//Information has been disseminated -- Break;
+					break;																							
 				}
-				else {																						//If it doesn't have information wait until some node puts information
-					try {																					//in its buffer
-						TimeUnit.MILLISECONDS.sleep(5);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}		
+				else {																						
+		    		sleep(5);
+				}
+				if(str_array.get(gossip_node.getIndex()).contains("work")) {
+			    	Thread paint = new PaintingThread(gossip_node);
+			    	paint.start();
 				}
 			}
 		}

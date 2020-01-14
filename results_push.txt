@@ -1,0 +1,20 @@
+0.05                                    1278 ms
+0.1                                     1500 ms
+0.2                                     1896 ms
+0.3                                     2103 ms
+0.4                                     2495 ms
+0.5                                     2710 ms
+0.6                                     3090 ms
+0.7                                     3318 ms
+0.8                                     3715 ms
+0.9                                     4102 ms
+0.92                                    4126 ms
+0.95                                    4334 ms
+1 converged in                          5139 ms
+
+Total_Nodes                             1001
+Disseminated_Nodes                      1001
+Transmission_time                       200
+N_messages_passed                       2273
+Bitrate                                 100
+Packet_Size                             20000

@@ -33,7 +33,7 @@ public class PaintingThread extends Thread{
 	
 	public void run() {
 		if(gossip_node.getIndex()!= 0 && !gossip_node.hasAttribute("ui.style")) {
-			gossip_node.addAttribute("ui.style", "fill-color: rgb(0,255,0); size: 10px;");				//Painting red node that has been disseminated with information
+			gossip_node.addAttribute("ui.style", "fill-color: rgb(0,255,0); size: 8px;");				//Painting red node that has been disseminated with information
 		}
 	}
 }
