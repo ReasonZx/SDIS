@@ -27,9 +27,9 @@ public class test {
 		
 		PrintWriter writer = new PrintWriter("results.txt", "UTF-8");
 		int bitrate = 100;
-		int packetSize = 10000;
+		int packetSize = 50000;
 		int tTrans = packetSize/bitrate;
-		int timeOut = 10000;
+		int timeOut = 30000;
 		double probability = 0.5;
 		
 		ArrayList<String> str_array = new ArrayList<String>();						//Array of buffers (1 for each node)
@@ -51,10 +51,17 @@ public class test {
 	    }
 	    
 	    List<Thread> list_of_nodes = new ArrayList<Thread>();						//Array of threads (1 for each node) 
-	    	    
+	    	
+	    /*  
 	    for(int i=0 ; i < nodeCount ; i++) {	
 	    	list_of_nodes.add(i,new gossip_thread(graph.getNode(i),str_array,probability,tTrans, timeOut));		//Assigning a thread for each node 
-	    	list_of_nodes.get(i).start();												//Run void run() of the thread		
+	    	list_of_nodes.get(i).start();																		//Run void run() of the thread		
+	    }*/
+	    
+	   
+	    for(int i=0 ; i < nodeCount ; i++) {	
+	    	list_of_nodes.add(i,new push_thread(graph.getNode(i),str_array,tTrans, timeOut));		//Assigning a thread for each node 
+	    	list_of_nodes.get(i).start();																		//Run void run() of the thread		
 	    }
 	    
 	    int num_over=0;
