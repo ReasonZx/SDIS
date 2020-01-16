@@ -71,7 +71,7 @@ public class test {
 		ArrayList<ReentrantLock> locks = new ArrayList<ReentrantLock>();
 		Graph graph = new SingleGraph("test");
 		
-	    Generator gen = new RandomEuclideanGenerator();										
+	    Generator gen = new LobsterGenerator();										
 	    
 	    gen.addSink(graph);
 	    gen.begin();
