@@ -63,7 +63,7 @@ public class gossip_thread extends Thread{
 	
 	public void run() {
 		if(gossip_node.getIndex() == 0) {	//If origin node
-			gossip_node.addAttribute("ui.style", "fill-color: rgb(0,0,255); size: 10px;");				//Paint as blue
+			//gossip_node.addAttribute("ui.style", "fill-color: rgb(0,0,255); size: 10px;");				//Paint as blue
 			str_array.set(0,"work:0");
     		traffic.setValue(traffic.getValue() + 1);
 		    node_it = gossip_node.getNeighborNodeIterator();												//Get the iterator for Neighbor nodes
